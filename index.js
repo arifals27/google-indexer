@@ -16,8 +16,11 @@ app.get('/submit/:url(*)', async (req, res) => {
             });
 
         config.index = config.index + 1;
+        //limit google indexing is 200
         if(config.index%200 === 0){
             config.service = config.service + 1;
+            // limitService is count from file service_account_$i.json
+            // if reach maximum, will reset again from 1
             if(config.service > limitService){
                 config.service = 1;
             }
@@ -29,13 +32,15 @@ app.get('/submit/:url(*)', async (req, res) => {
         console.log(e);
         res.sendStatus(500);
     }
-    // cdn.api(req.params.api).then(()=> cdn.upload());
-    // cdn.getImage(req.params.api).then(() => cdn.upload());
-    // res.send("Hallo")
 
 })
-app.get('/favicon.ico', (req, res) => {
-    res.send("Ahem");
+app.get('/reset', (req, res) => {
+    // need to reset from 1 again
+    // you can use cron to reset this
+    config.service = 1;
+    config.index = 1;
+    Indexer.updateConfig(config);
+    res.send("Terseret");
 })
 
 app.listen(port, () => {
